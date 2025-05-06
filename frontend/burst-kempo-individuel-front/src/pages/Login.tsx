@@ -13,7 +13,7 @@ export default function Login() {
 
   return (
     <div>
-      <h1>Connexion</h1>
+      <h1 className='text-red'>Connexion</h1>
       <button onClick={loginWithGoogle}>Connexion avec Google</button>
     </div>
   )
