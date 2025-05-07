@@ -18,5 +18,5 @@ export default function AuthCallback() {
     checkSession()
   }, [navigate])
 
-  return <p>Callback réussi ?</p>
+  return <p>Connexion en cours...</p>
 }
