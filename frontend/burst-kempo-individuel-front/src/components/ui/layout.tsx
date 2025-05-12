@@ -10,8 +10,10 @@ export default function Layout({ children }: LayoutProps) {
       {/* Header */}
       <header className="w-full border-b p-4 bg-gray-500">
         <div className="mx-auto max-w-5xl flex justify-between items-center">
-          <img src="logonk.png" alt="Logo" className="h-10 w-auto" />
-          <h1 className="text-lg font-semibold">Projet Nippon Kempo Individuel</h1>
+          <div className="flex items-center space-x-2">
+            <img src="logonk.png" alt="Logo" className="h-10 w-auto" />
+            <h1 className="text-lg font-semibold">Projet Nippon Kempo Individuel</h1>
+          </div>
           <nav className="space-x-4">
             <a href="/" className="hover:underline">Accueil</a>
             <a href="/dashboard" className="hover:underline">Tableau de bord</a>

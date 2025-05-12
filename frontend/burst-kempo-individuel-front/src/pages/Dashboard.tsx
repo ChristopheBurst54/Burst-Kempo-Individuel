@@ -1,66 +1,82 @@
 import { useEffect, useState } from "react";
+import { supabase } from "@/supabaseClient";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
-// ---------------------- TYPES
 interface Tournoi {
   IdTournoi: number;
+  NomTournoi: string;
   DateTournoi: string;
   HeureTournoi: string;
   LieuTournoi: string;
 }
 
-// ---------------------- DONNÉES SIMULÉES
-const tournoisSimulés: Tournoi[] = [
-  {
-    IdTournoi: 1,
-    DateTournoi: "2025-06-15",
-    HeureTournoi: "14:00",
-    LieuTournoi: "Gymnase Municipal, Metz",
-  },
-  {
-    IdTournoi: 2,
-    DateTournoi: "2025-07-10",
-    HeureTournoi: "10:00",
-    LieuTournoi: "Complexe Sportif, Nancy",
-  },
-];
+function formatDateFr(date: string): string {
+  return new Date(date).toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+function formatHeureFr(heure: string): string {
+  const [h, m] = heure.split(":");
+  return `${h}h${m}`;
+}
 
 export default function Dashboard() {
   const [tournois, setTournois] = useState<Tournoi[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // À remplacer plus tard par un fetch depuis Supabase
-    setTournois(tournoisSimulés);
+    const fetchTournois = async () => {
+      const { data, error } = await supabase
+        .from("Tournoi") // ← respecter la casse
+        .select("*")
+        .order("DateTournoi", { ascending: true });
+
+      if (error) {
+        console.error("Erreur chargement tournois :", error);
+        return;
+      }
+
+      setTournois(data as Tournoi[]);
+    };
+
+    fetchTournois();
   }, []);
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Tableau de bord</h1>
+      <h1 className="text-2xl font-bold">Tournois</h1>
 
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Tournois à venir</h2>
-
-        {tournois.length === 0 ? (
-          <p className="text-muted-foreground">Aucun tournoi enregistré.</p>
-        ) : (
-          tournois.map((t) => (
+      {tournois.length === 0 ? (
+        <p className="text-muted-foreground">Aucun tournoi disponible.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {tournois.map((t) => (
             <Card key={t.IdTournoi}>
-              <CardContent className="p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+              <CardContent className="p-4 space-y-2">
                 <div>
-                  <p className="font-medium">Tournoi #{t.IdTournoi}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {t.DateTournoi} à {t.HeureTournoi} – {t.LieuTournoi}
+                  <h1 className="text-xl font-bold text-primary">{t.NomTournoi}</h1>
+                  <p className="text-lg font-semibold">
+                    {formatDateFr(t.DateTournoi)} à {formatHeureFr(t.HeureTournoi)}
                   </p>
+                  <p className="text-sm">{t.LieuTournoi}</p>
                 </div>
-                <Button variant="outline" onClick={() => navigate('/tournament')}>Voir</Button>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate(`/tournament/${t.IdTournoi}`)}
+                >
+                  Voir
+                </Button>
+
               </CardContent>
             </Card>
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
