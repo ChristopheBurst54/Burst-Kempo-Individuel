@@ -17,7 +17,7 @@ export default function App() {
         <Route element={<Layout><Outlet /></Layout>}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/tournament" element={<Tournament />} />
-          <Route path="*" element={<Tournament />} />
+          <Route path="*" element={<Dashboard />} />
         </Route>
 
         {/* Catch-all (redirige vers login) */}

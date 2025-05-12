@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 // ---------------------- TYPES
 interface Tournoi {
@@ -28,6 +29,7 @@ const tournoisSimulés: Tournoi[] = [
 
 export default function Dashboard() {
   const [tournois, setTournois] = useState<Tournoi[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // À remplacer plus tard par un fetch depuis Supabase
@@ -53,9 +55,7 @@ export default function Dashboard() {
                     {t.DateTournoi} à {t.HeureTournoi} – {t.LieuTournoi}
                   </p>
                 </div>
-                <Button variant="outline" onClick={() => alert(`Ouvrir tournoi ${t.IdTournoi}`)}>
-                  Voir
-                </Button>
+                <Button variant="outline" onClick={() => navigate('/tournament')}>Voir</Button>
               </CardContent>
             </Card>
           ))

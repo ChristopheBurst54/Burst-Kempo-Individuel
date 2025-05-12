@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 // ---------------------- TYPES
 interface Tournoi {
@@ -71,6 +73,7 @@ const participants: Participant[] = [
 
 export default function TournamentPage() {
   const [filtre, setFiltre] = useState("");
+  const navigate = useNavigate();
 
   const filtrés = participants.filter((p) =>
     `${p.PrénomParticipant} ${p.NomParticipant}`.toLowerCase().includes(filtre.toLowerCase())
@@ -129,6 +132,7 @@ export default function TournamentPage() {
           </Table>
         </CardContent>
       </Card>
+      <Button onClick={() => navigate('/dashboard')}>Retour à l'accueil</Button>
     </div>
   );
 }
