@@ -1,35 +1,66 @@
-import { useEffect, useState } from 'react'
-import { supabase } from '../supabaseClient'
-import { useNavigate } from 'react-router-dom'
-import type { User } from '@supabase/supabase-js'
+import { useEffect, useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+
+// ---------------------- TYPES
+interface Tournoi {
+  IdTournoi: number;
+  DateTournoi: string;
+  HeureTournoi: string;
+  LieuTournoi: string;
+}
+
+// ---------------------- DONNÉES SIMULÉES
+const tournoisSimulés: Tournoi[] = [
+  {
+    IdTournoi: 1,
+    DateTournoi: "2025-06-15",
+    HeureTournoi: "14:00",
+    LieuTournoi: "Gymnase Municipal, Metz",
+  },
+  {
+    IdTournoi: 2,
+    DateTournoi: "2025-07-10",
+    HeureTournoi: "10:00",
+    LieuTournoi: "Complexe Sportif, Nancy",
+  },
+];
 
 export default function Dashboard() {
-  const [user, setUser] = useState<User | null>(null)
-  const navigate = useNavigate()
+  const [tournois, setTournois] = useState<Tournoi[]>([]);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user) {
-        setUser(user)
-      } else {
-        navigate('/login')
-      }
-    }
-
-    fetchUser()
-  }, [navigate])
-
-  const logout = async () => {
-    await supabase.auth.signOut()
-    navigate('/login')
-  }
+    // À remplacer plus tard par un fetch depuis Supabase
+    setTournois(tournoisSimulés);
+  }, []);
 
   return (
-    <div>
-      <h1>Dashboard</h1>
-      {user && <p>Bienvenue, {user.email}</p>}
-      <button onClick={logout}>Déconnexion</button>
+    <div className="p-6 space-y-6">
+      <h1 className="text-2xl font-bold">Tableau de bord</h1>
+
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold">Tournois à venir</h2>
+
+        {tournois.length === 0 ? (
+          <p className="text-muted-foreground">Aucun tournoi enregistré.</p>
+        ) : (
+          tournois.map((t) => (
+            <Card key={t.IdTournoi}>
+              <CardContent className="p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                <div>
+                  <p className="font-medium">Tournoi #{t.IdTournoi}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {t.DateTournoi} à {t.HeureTournoi} – {t.LieuTournoi}
+                  </p>
+                </div>
+                <Button variant="outline" onClick={() => alert(`Ouvrir tournoi ${t.IdTournoi}`)}>
+                  Voir
+                </Button>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
     </div>
-  )
+  );
 }
