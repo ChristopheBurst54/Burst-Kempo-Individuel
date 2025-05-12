@@ -13,7 +13,7 @@ export default function Login() {
   }
 
   return (
-    <div className='grid place-items-center h-screen'>
+    <div className='grid place-items-center h-screen bg-gray-900 text-white'>
       <img src='logonk.png' className='w-100 h-auto'></img>
       <Button onClick={() => loginWithGoogle()}>Connexion avec Google</Button>
     </div>

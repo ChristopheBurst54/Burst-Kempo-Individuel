@@ -43,6 +43,21 @@ function formatHeureFr(heure: string) {
   return `${h}h${m}`;
 }
 
+function getGenderSymbol(nomGenre?: string) {
+  if (!nomGenre) return "";
+  return nomGenre.toLowerCase() === "femme" ? "♀️" :
+         nomGenre.toLowerCase() === "homme" ? "♂️" : "";
+}
+
+function getTrophee(classement: number) {
+  switch (classement) {
+    case 1: return "🏆"; // Or
+    case 2: return "🥈"; // Argent
+    case 3: return "🥉"; // Bronze
+    default: return "";
+  }
+}
+
 export default function TournamentPage() {
   const { id } = useParams();
   const [filtre, setFiltre] = useState("");
@@ -122,20 +137,31 @@ export default function TournamentPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtrés.map((p) => (
-                <TableRow key={p.IdParticipant}>
-                  <TableCell>{p.PrenomParticipant} {p.NomParticipant}</TableCell>
-                  <TableCell>{p.ClassementParticipant}</TableCell>
-                  <TableCell>{p.IpponsParticipant}</TableCell>
-                  <TableCell>{p.KeikokusParticipant}</TableCell>
-                  <TableCell>{p.Genre?.NomGenre}</TableCell>
-                  <TableCell>{formatDateFr(p.DateNaissanceParticipant)}</TableCell>
-                  <TableCell>{p.PoidsParticipant} kg</TableCell>
-                  <TableCell>{p.Club?.NomClub ?? "-"}</TableCell>
-                  <TableCell>{p.Grade?.NomGrade ?? "-"}</TableCell>
-                  <TableCell>{p.Nationalite?.NomNationalite ?? "-"}</TableCell>
-                </TableRow>
-              ))}
+              {filtrés.map((p) => {
+                const rowClass =
+                  p.ClassementParticipant === 1
+                    ? "bg-yellow-300/30"
+                    : p.ClassementParticipant === 2
+                    ? "bg-gray-300/30"
+                    : p.ClassementParticipant === 3
+                    ? "bg-orange-300/30"
+                    : "";
+
+                return (
+                  <TableRow key={p.IdParticipant} className={rowClass}>
+                    <TableCell>{p.PrenomParticipant} {p.NomParticipant}</TableCell>
+                    <TableCell>{getTrophee(p.ClassementParticipant)} {p.ClassementParticipant}</TableCell>
+                    <TableCell>{p.IpponsParticipant}</TableCell>
+                    <TableCell>{p.KeikokusParticipant}</TableCell>
+                    <TableCell>{getGenderSymbol(p.Genre?.NomGenre)}{p.Genre?.NomGenre}</TableCell>
+                    <TableCell>{p.DateNaissanceParticipant}</TableCell>
+                    <TableCell>{p.PoidsParticipant} kg</TableCell>
+                    <TableCell>{p.Club?.NomClub ?? "-"}</TableCell>
+                    <TableCell>{p.Grade?.NomGrade ?? "-"}</TableCell>
+                    <TableCell>{p.Nationalite?.NomNationalite ?? "-"}</TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </CardContent>
