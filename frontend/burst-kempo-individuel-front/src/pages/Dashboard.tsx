@@ -7,8 +7,8 @@ import { useNavigate } from "react-router-dom";
 interface Tournoi {
   IdTournoi: number;
   NomTournoi: string;
-  DateTournoi: string;
-  HeureTournoi: string;
+  DateTournoi: string; // format ISO "YYYY-MM-DD"
+  HeureTournoi: string; // format "HH:mm"
   LieuTournoi: string;
 }
 
@@ -25,14 +25,19 @@ function formatHeureFr(heure: string): string {
   return `${h}h${m}`;
 }
 
+function combineDateTime(date: string, time: string): Date {
+  return new Date(`${date}T${time}`);
+}
+
 export default function Dashboard() {
-  const [tournois, setTournois] = useState<Tournoi[]>([]);
+  const [tournoisAVenir, setTournoisAVenir] = useState<Tournoi[]>([]);
+  const [tournoisPasses, setTournoisPasses] = useState<Tournoi[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTournois = async () => {
       const { data, error } = await supabase
-        .from("Tournoi") // ← respecter la casse
+        .from("Tournoi")
         .select("*")
         .order("DateTournoi", { ascending: true });
 
@@ -41,42 +46,70 @@ export default function Dashboard() {
         return;
       }
 
-      setTournois(data as Tournoi[]);
+      const now = new Date();
+
+      const aVenir: Tournoi[] = [];
+      const passes: Tournoi[] = [];
+
+      (data as Tournoi[]).forEach((t) => {
+        const dateHeureTournoi = combineDateTime(t.DateTournoi, t.HeureTournoi);
+        if (dateHeureTournoi >= now) {
+          aVenir.push(t);
+        } else {
+          passes.push(t);
+        }
+      });
+
+      setTournoisAVenir(aVenir);
+      setTournoisPasses(passes);
     };
 
     fetchTournois();
   }, []);
 
+  const renderTournois = (liste: Tournoi[]) => (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      {liste.map((t) => (
+        <Card key={t.IdTournoi}>
+          <CardContent className="p-4 space-y-2">
+            <div>
+              <h1 className="text-xl font-bold text-primary">{t.NomTournoi}</h1>
+              <p className="text-lg font-semibold">
+                {formatDateFr(t.DateTournoi)} à {formatHeureFr(t.HeureTournoi)}
+              </p>
+              <p className="text-sm">{t.LieuTournoi}</p>
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => navigate(`/tournament/${t.IdTournoi}`)}
+            >
+              Voir
+            </Button>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">Tournois</h1>
+    <div className="p-6 space-y-10">
+      <div>
+        <h1 className="text-2xl font-bold mb-4">Tournois à venir</h1>
+        {tournoisAVenir.length === 0 ? (
+          <p className="text-muted-foreground">Aucun tournoi à venir.</p>
+        ) : (
+          renderTournois(tournoisAVenir)
+        )}
+      </div>
 
-      {tournois.length === 0 ? (
-        <p className="text-muted-foreground">Aucun tournoi disponible.</p>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {tournois.map((t) => (
-            <Card key={t.IdTournoi}>
-              <CardContent className="p-4 space-y-2">
-                <div>
-                  <h1 className="text-xl font-bold text-primary">{t.NomTournoi}</h1>
-                  <p className="text-lg font-semibold">
-                    {formatDateFr(t.DateTournoi)} à {formatHeureFr(t.HeureTournoi)}
-                  </p>
-                  <p className="text-sm">{t.LieuTournoi}</p>
-                </div>
-                <Button
-                  variant="outline"
-                  onClick={() => navigate(`/tournament/${t.IdTournoi}`)}
-                >
-                  Voir
-                </Button>
-
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+      <div>
+        <h1 className="text-2xl font-bold mb-4">Tournois passés</h1>
+        {tournoisPasses.length === 0 ? (
+          <p className="text-muted-foreground">Aucun tournoi passé.</p>
+        ) : (
+          renderTournois(tournoisPasses)
+        )}
+      </div>
     </div>
   );
 }

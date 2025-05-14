@@ -14,8 +14,12 @@ export default function Login() {
 
   return (
     <div className='grid place-items-center h-screen bg-gray-900 text-white'>
-      <img src='logonk.png' className='w-100 h-auto'></img>
-      <Button onClick={() => loginWithGoogle()}>Connexion avec Google</Button>
+      <img src='logonk.png' className='w-100 h-auto mb-1'></img>
+      <Button
+        onClick={() => loginWithGoogle()}
+        className='px-6 py-3 text-lg font-semibold bg-blue-600 hover:bg-blue-700 rounded-lg shadow-lg'>
+        Connexion avec Google
+      </Button>
     </div>
   )
 }
